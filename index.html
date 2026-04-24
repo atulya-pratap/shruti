@@ -1,0 +1,1926 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>Atulya & Shruti — Friendship.exe</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+<style>
+/* ============================
+   CSS VARIABLES & RESET
+   ============================ */
+:root {
+  --bg:        #fff5f7;
+  --bg2:       #fce8f0;
+  --bg3:       #f0e6ff;
+  --pink:      #ff4d6d;
+  --pink-light:#ffb3c1;
+  --pink-pale: #ffe0e8;
+  --lavender:  #c9b8f5;
+  --lav-pale:  #ede5ff;
+  --text:      #1a1a2e;
+  --muted:     #6b6b80;
+  --white:     #ffffff;
+  --card-bg:   #fffbfc;
+  --border:    #f0d6e0;
+  --shadow:    0 8px 32px rgba(255,77,109,0.10);
+  --shadow2:   0 2px 12px rgba(201,184,245,0.18);
+  --radius:    16px;
+  --radius-sm: 10px;
+  --font-head: 'Playfair Display', Georgia, serif;
+  --font-body: 'DM Sans', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  --sp:        clamp(12px, 4vw, 20px);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { font-size: 16px; scroll-behavior: smooth; }
+
+body {
+  font-family: var(--font-body);
+  background: var(--bg);
+  color: var(--text);
+  overflow-x: hidden;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+
+/* Hide all main sections by default */
+.screen { display: none; }
+.screen.active { display: flex; }
+
+/* ============================
+   FLOATING AUDIO BUTTON
+   ============================ */
+#audio-btn {
+  position: fixed;
+  bottom: 24px;
+  right: 20px;
+  z-index: 9999;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--pink), var(--lavender));
+  border: none;
+  cursor: pointer;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 20px rgba(255,77,109,0.35);
+  transition: transform 0.3s, box-shadow 0.3s;
+  font-size: 22px;
+}
+#audio-btn:active { transform: scale(0.92); }
+#audio-btn.visible { display: flex; }
+#audio-btn .note {
+  display: inline-block;
+  transition: transform 0.4s ease;
+}
+#audio-btn.playing .note { animation: spin-note 1.2s linear infinite; }
+@keyframes spin-note {
+  0%   { transform: rotate(0deg) scale(1); }
+  50%  { transform: rotate(180deg) scale(1.15); }
+  100% { transform: rotate(360deg) scale(1); }
+}
+
+/* ============================
+   1. SECURITY SCREEN
+   ============================ */
+#security-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: linear-gradient(135deg, var(--bg) 0%, var(--bg3) 50%, var(--bg2) 100%);
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--sp);
+  gap: 0;
+}
+
+.security-inner {
+  width: 100%;
+  max-width: 380px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+/* GIF slot */
+.gif-slot {
+  width: min(220px, 80vw);
+  height: min(160px, 44vw);
+  border-radius: var(--radius);
+  border: 2px dashed var(--pink-light);
+  background: var(--pink-pale);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--pink);
+  letter-spacing: 0.05em;
+  overflow: hidden;
+  position: relative;
+}
+.gif-slot img { width: 100%; height: 100%; object-fit: cover; border-radius: var(--radius); }
+.gif-slot-label {
+  position: absolute;
+  bottom: 6px;
+  font-size: 0.6rem;
+  color: var(--pink);
+  opacity: 0.6;
+  font-family: var(--font-mono);
+}
+
+.security-title {
+  font-family: var(--font-head);
+  font-size: clamp(1.3rem, 5vw, 1.7rem);
+  color: var(--text);
+  text-align: center;
+  line-height: 1.3;
+}
+.security-title span {
+  color: var(--pink);
+  font-style: italic;
+}
+
+.terminal-box {
+  width: 100%;
+  background: var(--white);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  padding: 18px 20px;
+  box-shadow: var(--shadow);
+  font-family: var(--font-mono);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.terminal-prompt {
+  font-size: 0.72rem;
+  color: var(--muted);
+  letter-spacing: 0.08em;
+}
+.terminal-prompt span { color: var(--pink); }
+
+.input-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-bottom: 1.5px solid var(--pink-pale);
+  padding-bottom: 6px;
+}
+.input-row .cursor-char {
+  color: var(--pink);
+  font-size: 1rem;
+  margin-right: 2px;
+}
+#pwd-input {
+  flex: 1;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-family: var(--font-mono);
+  font-size: 1rem;
+  color: var(--text);
+  letter-spacing: 0.1em;
+  caret-color: var(--pink);
+}
+#pwd-input::placeholder { color: var(--pink-light); font-size: 0.85rem; }
+.blink-cursor {
+  width: 2px;
+  height: 18px;
+  background: var(--pink);
+  animation: blink 1s step-end infinite;
+  flex-shrink: 0;
+}
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+
+.enter-btn {
+  width: 100%;
+  padding: 13px;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: linear-gradient(135deg, var(--pink), #ff6b9d);
+  color: var(--white);
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  letter-spacing: 0.04em;
+  transition: transform 0.2s, box-shadow 0.2s;
+  min-height: 48px;
+}
+.enter-btn:active { transform: scale(0.97); }
+.enter-btn:hover { box-shadow: 0 4px 16px rgba(255,77,109,0.35); }
+
+.error-msg {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--pink);
+  text-align: center;
+  min-height: 18px;
+  animation: fadeIn 0.3s ease;
+}
+
+/* Layered gifs inside the shared slot */
+.gif-layer {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius);
+  overflow: hidden;
+  transition: opacity 0.35s ease;
+  opacity: 1;
+}
+.gif-layer img { width: 100%; height: 100%; object-fit: cover; border-radius: var(--radius); }
+
+.gif-wrong {
+  opacity: 0;
+  pointer-events: none;
+}
+.gif-wrong.show {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+@keyframes shake {
+  0%,100%{transform:translateX(0)}
+  20%{transform:translateX(-8px)}
+  40%{transform:translateX(8px)}
+  60%{transform:translateX(-5px)}
+  80%{transform:translateX(5px)}
+}
+.shake { animation: shake 0.45s ease; }
+
+@keyframes fadeOut {
+  to { opacity: 0; pointer-events: none; }
+}
+#security-screen.exit {
+  animation: fadeOut 0.6s ease forwards;
+}
+
+/* ============================
+   2. LOADING SCREEN
+   ============================ */
+#loading-screen {
+  min-height: 100dvh;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(160deg, var(--bg2) 0%, var(--bg3) 100%);
+  gap: 28px;
+  padding: var(--sp);
+}
+
+.loading-logo {
+  font-family: var(--font-head);
+  font-size: clamp(1.6rem, 6vw, 2.4rem);
+  color: var(--text);
+  text-align: center;
+  line-height: 1.2;
+}
+.loading-logo em { color: var(--pink); font-style: italic; }
+
+.loading-msg-box {
+  font-family: var(--font-mono);
+  font-size: clamp(0.75rem, 3vw, 0.9rem);
+  color: var(--muted);
+  text-align: center;
+  min-height: 24px;
+  letter-spacing: 0.04em;
+}
+.loading-msg-box .line {
+  opacity: 0;
+  animation: fadeUp 0.4s ease forwards;
+}
+@keyframes fadeUp { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:none} }
+
+.progress-wrap {
+  width: min(280px, 80vw);
+  height: 6px;
+  background: var(--pink-pale);
+  border-radius: 999px;
+  overflow: hidden;
+}
+.progress-bar {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, var(--pink), var(--lavender));
+  border-radius: 999px;
+  transition: width 0.4s ease;
+}
+
+.loading-hearts {
+  display: flex;
+  gap: 10px;
+  font-size: 1.2rem;
+}
+.loading-hearts span {
+  animation: heartbeat 1.2s ease-in-out infinite;
+}
+.loading-hearts span:nth-child(2) { animation-delay: 0.2s; }
+.loading-hearts span:nth-child(3) { animation-delay: 0.4s; }
+@keyframes heartbeat {
+  0%,100%{transform:scale(1)}
+  50%{transform:scale(1.3)}
+}
+
+/* ============================
+   3. INTERACTION SCREEN
+   ============================ */
+#interaction-screen {
+  min-height: 100dvh;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg);
+  padding: var(--sp);
+  gap: 32px;
+  position: relative;
+  overflow: hidden;
+}
+.interaction-screen-bg {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 60% 40%, var(--lav-pale) 0%, transparent 70%),
+              radial-gradient(ellipse at 30% 70%, var(--pink-pale) 0%, transparent 60%);
+  pointer-events: none;
+}
+
+.interaction-q {
+  font-family: var(--font-head);
+  font-size: clamp(1.35rem, 5.5vw, 2rem);
+  color: var(--text);
+  text-align: center;
+  line-height: 1.35;
+  max-width: 320px;
+  position: relative;
+  z-index: 1;
+}
+.interaction-q em { color: var(--pink); font-style: italic; }
+
+.btn-area {
+  display: flex;
+  gap: 18px;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  width: 100%;
+  z-index: 1;
+}
+
+.btn-yes, .btn-no {
+  min-height: 52px;
+  padding: 14px 32px;
+  border-radius: 999px;
+  border: none;
+  font-family: var(--font-body);
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.25s, box-shadow 0.25s;
+  letter-spacing: 0.03em;
+}
+.btn-yes {
+  background: linear-gradient(135deg, var(--pink), #ff6b9d);
+  color: var(--white);
+  box-shadow: 0 4px 20px rgba(255,77,109,0.3);
+}
+.btn-yes:hover { transform: scale(1.06); box-shadow: 0 6px 24px rgba(255,77,109,0.42); }
+.btn-yes:active { transform: scale(0.97); }
+
+.btn-no {
+  background: var(--white);
+  color: var(--muted);
+  border: 1.5px solid var(--border);
+  box-shadow: var(--shadow2);
+  position: absolute;
+  transition: top 0.35s cubic-bezier(.34,1.56,.64,1), left 0.35s cubic-bezier(.34,1.56,.64,1), transform 0.2s;
+}
+
+.nice-try-msg {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: var(--pink);
+  text-align: center;
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 0.4s, transform 0.4s;
+  max-width: 260px;
+  line-height: 1.5;
+  position: relative;
+  z-index: 1;
+}
+.nice-try-msg.show { opacity: 1; transform: none; }
+
+/* ============================
+   MAIN CONTENT (Sections 4–10)
+   ============================ */
+#main-content { display: none; }
+#main-content.active { display: block; }
+
+/* ============================
+   4. TIMELINE SCREEN
+   ============================ */
+#timeline-screen {
+  min-height: 100dvh;
+  padding: clamp(40px, 10vw, 80px) var(--sp) clamp(40px, 8vw, 60px);
+  background: linear-gradient(180deg, var(--bg) 0%, var(--bg2) 100%);
+}
+
+.section-label {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.12em;
+  color: var(--pink);
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.section-title {
+  font-family: var(--font-head);
+  font-size: clamp(1.6rem, 6vw, 2.4rem);
+  color: var(--text);
+  line-height: 1.2;
+  margin-bottom: clamp(28px, 7vw, 48px);
+}
+.section-title em { color: var(--pink); font-style: italic; }
+
+.timeline-line {
+  width: 2px;
+  background: linear-gradient(to bottom, var(--pink-light), var(--lavender));
+  position: absolute;
+  left: 18px;
+  top: 0;
+  bottom: 0;
+  border-radius: 2px;
+}
+
+.timeline-wrap {
+  position: relative;
+  padding-left: 48px;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  max-width: 560px;
+}
+
+.timeline-card {
+  background: var(--card-bg);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px 18px;
+  box-shadow: var(--shadow2);
+  position: relative;
+  opacity: 0;
+  transform: translateY(22px);
+  transition: opacity 0.55s ease, transform 0.55s ease;
+}
+.timeline-card.visible { opacity: 1; transform: none; }
+.timeline-card::before {
+  content: '';
+  position: absolute;
+  left: -38px;
+  top: 18px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--pink);
+  border: 3px solid var(--white);
+  box-shadow: 0 0 0 2px var(--pink-light);
+}
+
+.timeline-date {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  color: var(--pink);
+  letter-spacing: 0.08em;
+  margin-bottom: 6px;
+}
+.timeline-event {
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--text);
+  line-height: 1.4;
+}
+.timeline-tag {
+  display: inline-block;
+  margin-top: 8px;
+  background: var(--pink-pale);
+  color: var(--pink);
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  padding: 3px 10px;
+  border-radius: 999px;
+  letter-spacing: 0.06em;
+}
+
+/* ============================
+   5. MEMORY CARDS
+   ============================ */
+#memory-screen {
+  min-height: 100dvh;
+  padding: clamp(40px, 10vw, 80px) var(--sp) clamp(40px, 8vw, 60px);
+  background: linear-gradient(180deg, var(--bg2) 0%, var(--bg3) 100%);
+}
+
+.memory-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 18px;
+  max-width: 800px;
+}
+@media(min-width:600px){ .memory-grid { grid-template-columns: 1fr 1fr; } }
+@media(min-width:900px){ .memory-grid { grid-template-columns: 1fr 1fr 1fr; } }
+
+.mem-card {
+  background: var(--card-bg);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px 18px;
+  cursor: pointer;
+  box-shadow: var(--shadow2);
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.3s, box-shadow 0.3s;
+  opacity: 0;
+  transform: translateY(22px);
+}
+.mem-card.visible { opacity: 1; transform: translateY(0); }
+.mem-card:hover, .mem-card:active { transform: translateY(-4px) scale(1.01); box-shadow: var(--shadow); }
+
+.mem-icon {
+  font-size: 1.8rem;
+  margin-bottom: 10px;
+  display: block;
+}
+.mem-title {
+  font-family: var(--font-head);
+  font-size: 1rem;
+  color: var(--text);
+  font-style: italic;
+  margin-bottom: 6px;
+}
+.mem-tap {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  color: var(--muted);
+  letter-spacing: 0.06em;
+}
+
+/* Expanded overlay */
+.mem-expand {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, var(--pink), #c084fc);
+  border-radius: var(--radius);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 10px;
+  opacity: 0;
+  transform: scale(0.9);
+  transition: opacity 0.3s, transform 0.3s;
+  pointer-events: none;
+}
+.mem-card.expanded .mem-expand {
+  opacity: 1;
+  transform: scale(1);
+  pointer-events: auto;
+}
+.mem-expand-text {
+  font-family: var(--font-body);
+  font-size: 0.92rem;
+  color: var(--white);
+  line-height: 1.5;
+  font-weight: 400;
+}
+.mem-expand-sarcasm {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: rgba(255,255,255,0.75);
+  line-height: 1.4;
+}
+.mem-close {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  color: rgba(255,255,255,0.65);
+  margin-top: 6px;
+  letter-spacing: 0.06em;
+}
+
+/* ============================
+   6. SHRUTI SYSTEM ANALYSIS
+   ============================ */
+#shruti-screen {
+  min-height: 100dvh;
+  padding: clamp(40px, 10vw, 80px) var(--sp) clamp(40px, 8vw, 60px);
+  background: linear-gradient(180deg, var(--bg3) 0%, var(--bg) 100%);
+}
+
+.sys-dashboard {
+  max-width: 540px;
+}
+
+.sys-header {
+  background: var(--card-bg);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius) var(--radius) 0 0;
+  padding: 14px 18px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-bottom: none;
+}
+.sys-dots {
+  display: flex;
+  gap: 6px;
+}
+.sys-dots span {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+.sys-dots span:nth-child(1){background:#ff5f57}
+.sys-dots span:nth-child(2){background:#febc2e}
+.sys-dots span:nth-child(3){background:#28c840}
+
+.sys-title-bar {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--muted);
+  letter-spacing: 0.06em;
+}
+
+.sys-body {
+  background: var(--card-bg);
+  border: 1.5px solid var(--border);
+  border-radius: 0 0 var(--radius) var(--radius);
+  padding: 20px 18px;
+  box-shadow: var(--shadow);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.sys-row {
+  display: grid;
+  grid-template-columns: 1fr 1.4fr;
+  gap: 8px;
+  align-items: start;
+  border-bottom: 1px dashed var(--border);
+  padding-bottom: 12px;
+  opacity: 0;
+  transform: translateX(-12px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+.sys-row.visible { opacity: 1; transform: none; }
+.sys-row:last-child { border-bottom: none; padding-bottom: 0; }
+
+.sys-key {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  color: var(--muted);
+  letter-spacing: 0.08em;
+  padding-top: 2px;
+}
+.sys-val {
+  font-family: var(--font-body);
+  font-size: 0.88rem;
+  color: var(--text);
+  line-height: 1.4;
+  font-weight: 500;
+}
+.sys-val.pink { color: var(--pink); }
+.sys-val.lav  { color: #8b5cf6; }
+
+.trait-tag {
+  display: inline-block;
+  background: var(--pink-pale);
+  color: var(--pink);
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  padding: 3px 9px;
+  border-radius: 999px;
+  letter-spacing: 0.04em;
+  margin: 2px 2px 2px 0;
+}
+.trait-tag.lav {
+  background: var(--lav-pale);
+  color: #7c3aed;
+}
+
+.progress-mini-wrap {
+  width: 100%;
+  height: 4px;
+  background: var(--pink-pale);
+  border-radius: 999px;
+  overflow: hidden;
+  margin-top: 5px;
+}
+.progress-mini {
+  height: 100%;
+  background: linear-gradient(90deg, var(--pink), var(--lavender));
+  border-radius: 999px;
+  width: 0%;
+  transition: width 1.2s ease 0.4s;
+}
+
+/* ============================
+   7. FRIENDSHIP PROTOCOLS
+   ============================ */
+#protocols-screen {
+  min-height: 100dvh;
+  padding: clamp(40px, 10vw, 80px) var(--sp) clamp(40px, 8vw, 60px);
+  background: linear-gradient(180deg, var(--bg) 0%, var(--bg2) 100%);
+}
+
+.protocols-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  max-width: 500px;
+}
+
+.protocol-item {
+  background: var(--card-bg);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px 18px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  cursor: pointer;
+  transition: box-shadow 0.3s, transform 0.25s, border-color 0.3s;
+  position: relative;
+  overflow: hidden;
+  opacity: 0;
+  transform: translateY(18px);
+}
+.protocol-item.visible { opacity: 1; transform: none; }
+.protocol-item:hover, .protocol-item:active {
+  box-shadow: 0 0 0 2px var(--pink), var(--shadow);
+  border-color: var(--pink);
+  transform: translateX(4px);
+}
+.protocol-item::before {
+  content:'';
+  position:absolute;
+  left:0;top:0;bottom:0;
+  width:3px;
+  background:linear-gradient(to bottom, var(--pink), var(--lavender));
+  border-radius:3px 0 0 3px;
+}
+
+.protocol-icon {
+  font-size: 1.4rem;
+  flex-shrink: 0;
+}
+.protocol-body { flex: 1; }
+.protocol-title {
+  font-family: var(--font-body);
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 3px;
+}
+.protocol-status {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.08em;
+}
+.status-banned   { color: #ef4444; }
+.status-enc      { color: #f59e0b; }
+.status-mandatory{ color: #22c55e; }
+.status-limited  { color: #8b5cf6; }
+
+.glow-pulse {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at center, rgba(255,77,109,0.07), transparent 70%);
+  opacity: 0;
+  transition: opacity 0.3s;
+  pointer-events: none;
+}
+.protocol-item:hover .glow-pulse, .protocol-item:active .glow-pulse { opacity: 1; }
+
+/* ============================
+   8. PHOTO GALLERY
+   ============================ */
+#photos-screen {
+  min-height: 100dvh;
+  padding: clamp(40px, 10vw, 80px) var(--sp) clamp(40px, 8vw, 60px);
+  background: linear-gradient(180deg, var(--bg2) 0%, var(--bg3) 100%);
+}
+
+.photos-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 14px;
+  max-width: 600px;
+  width: 100%;
+  margin-top: 4px;
+}
+
+.photo-item {
+  position: relative;
+  border-radius: var(--radius);
+  overflow: hidden;
+  aspect-ratio: 1;
+  cursor: pointer;
+  border: 1.5px solid var(--border);
+  box-shadow: var(--shadow2);
+  opacity: 0;
+  transform: scale(0.95) translateY(14px);
+  transition: opacity 0.5s ease, transform 0.5s ease, box-shadow 0.3s;
+}
+.photo-item.visible {
+  opacity: 1;
+  transform: scale(1) translateY(0);
+}
+.photo-item:hover {
+  transform: scale(1.04) translateY(0);
+  box-shadow: var(--shadow);
+}
+
+.photo-item img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.4s;
+}
+.photo-item:hover img { transform: scale(1.07); }
+
+.photo-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(255,77,109,0.55) 0%, transparent 65%);
+  opacity: 0;
+  transition: opacity 0.3s;
+  display: flex;
+  align-items: flex-end;
+  padding: 10px;
+}
+.photo-item:hover .photo-overlay { opacity: 1; }
+
+.photo-caption {
+  font-family: var(--font-mono);
+  font-size: 0.63rem;
+  color: var(--white);
+  letter-spacing: 0.04em;
+  line-height: 1.3;
+}
+
+/* Lightbox */
+.lightbox {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(16, 8, 18, 0.93);
+  z-index: 2000;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  cursor: pointer;
+  backdrop-filter: blur(6px);
+}
+.lightbox.open { display: flex; animation: fadeIn 0.3s ease; }
+.lightbox img {
+  max-width: 90vw;
+  max-height: 85vh;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  cursor: default;
+  border: 1.5px solid var(--border);
+}
+.lb-close {
+  position: absolute;
+  top: 20px; right: 24px;
+  font-size: 1.6rem;
+  color: var(--pink);
+  cursor: pointer;
+  font-family: var(--font-mono);
+  line-height: 1;
+  transition: transform 0.2s;
+  z-index: 1;
+}
+.lb-close:hover { transform: scale(1.2); }
+
+/* ============================
+   9. SECRET VAULT
+   ============================ */
+#vault-screen {
+  min-height: 100dvh;
+  padding: clamp(40px, 10vw, 80px) var(--sp) clamp(40px, 8vw, 60px);
+  background: linear-gradient(180deg, var(--bg2) 0%, var(--bg3) 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+.vault-btn-wrap {
+  margin-top: 16px;
+}
+
+.vault-trigger {
+  background: var(--card-bg);
+  border: 1.5px dashed var(--pink);
+  border-radius: var(--radius);
+  padding: 14px 24px;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: var(--pink);
+  cursor: pointer;
+  letter-spacing: 0.08em;
+  transition: background 0.25s, transform 0.2s;
+  min-height: 48px;
+}
+.vault-trigger:hover { background: var(--pink-pale); transform: scale(1.02); }
+.vault-trigger:active { transform: scale(0.97); }
+
+.vault-reveal {
+  margin-top: 24px;
+  background: var(--card-bg);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  padding: 24px 22px;
+  box-shadow: var(--shadow);
+  max-width: 420px;
+  overflow: hidden;
+  max-height: 0;
+  opacity: 0;
+  transition: max-height 0.7s cubic-bezier(.34,1.56,.64,1), opacity 0.5s ease, padding 0.4s;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+.vault-reveal.open {
+  max-height: 300px;
+  opacity: 1;
+  padding: 24px 22px;
+}
+.vault-reveal-text {
+  font-family: var(--font-head);
+  font-size: clamp(1.1rem, 4vw, 1.4rem);
+  color: var(--text);
+  line-height: 1.45;
+  font-style: italic;
+}
+.vault-reveal-text em { color: var(--pink); }
+.vault-reveal-sub {
+  margin-top: 12px;
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  color: var(--muted);
+  letter-spacing: 0.07em;
+}
+
+/* ============================
+   9. (Audio button is floating, defined above)
+   ============================ */
+
+/* ============================
+   10. FINAL SCREEN
+   ============================ */
+#final-screen {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--bg3) 0%, var(--bg2) 50%, var(--bg) 100%);
+  padding: var(--sp);
+  gap: 28px;
+  text-align: center;
+}
+
+.final-status-label {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--muted);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.final-status-val {
+  font-family: var(--font-head);
+  font-size: clamp(1.8rem, 7vw, 3rem);
+  color: var(--text);
+  line-height: 1.15;
+  margin-top: 6px;
+}
+.final-status-val em { color: var(--pink); }
+
+.final-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--white);
+  border: 1.5px solid var(--border);
+  border-radius: 999px;
+  padding: 8px 18px;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--muted);
+  box-shadow: var(--shadow2);
+}
+.online-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #22c55e;
+  animation: pulse-dot 1.5s ease-in-out infinite;
+}
+@keyframes pulse-dot {
+  0%,100%{box-shadow:0 0 0 0 rgba(34,197,94,0.45)}
+  50%{box-shadow:0 0 0 5px rgba(34,197,94,0)}
+}
+
+.tg-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: linear-gradient(135deg, #2aabee, #229ed9);
+  color: var(--white);
+  text-decoration: none;
+  padding: 15px 32px;
+  border-radius: 999px;
+  font-family: var(--font-body);
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  box-shadow: 0 4px 20px rgba(42,171,238,0.35);
+  transition: transform 0.25s, box-shadow 0.25s;
+  min-height: 52px;
+}
+.tg-btn:hover { transform: scale(1.05); box-shadow: 0 6px 28px rgba(42,171,238,0.45); }
+.tg-btn:active { transform: scale(0.97); }
+
+.final-footer {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  color: var(--muted);
+  opacity: 0.7;
+  letter-spacing: 0.08em;
+}
+
+/* ============================
+   SCROLL NAV DOTS
+   ============================ */
+#nav-dots {
+  position: fixed;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  z-index: 500;
+  display: none;
+}
+#nav-dots.visible { display: flex; }
+.nav-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--pink-light);
+  cursor: pointer;
+  transition: background 0.3s, transform 0.3s;
+}
+.nav-dot.active { background: var(--pink); transform: scale(1.4); }
+
+/* ============================
+   UTILITY
+   ============================ */
+@keyframes fadeIn { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:none} }
+.fade-in { animation: fadeIn 0.5s ease forwards; }
+
+/* Confetti particles */
+.confetti-wrap {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9000;
+  overflow: hidden;
+}
+.confetti-piece {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+  opacity: 0;
+  animation: confetti-fall 1.5s ease forwards;
+}
+@keyframes confetti-fall {
+  0%   { opacity: 1; transform: translateY(-20px) rotate(0deg); }
+  100% { opacity: 0; transform: translateY(100vh) rotate(720deg); }
+}
+
+/* ============================
+   RESPONSIVE TWEAKS
+   ============================ */
+@media (min-width: 600px) {
+  .timeline-wrap { max-width: 100%; }
+  .sys-dashboard { max-width: 600px; }
+  .protocols-grid { max-width: 600px; }
+  .photos-grid { grid-template-columns: repeat(3, 1fr); }
+}
+@media (max-width: 420px) {
+  .photos-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (min-width: 900px) {
+  #main-content { max-width: 900px; margin: 0 auto; }
+}
+</style>
+</head>
+<body>
+
+<div class="confetti-wrap" id="confetti-wrap"></div>
+
+<div class="lightbox" id="lightbox" onclick="closeLightbox(event)">
+  <span class="lb-close" onclick="closeLightbox()">✕</span>
+  <img id="lb-img" src="" alt="">
+</div>
+
+<button id="audio-btn" title="Toggle Lo-Fi music" aria-label="Toggle music">
+  <span class="note">🎵</span>
+</button>
+
+<div id="security-screen" class="screen active">
+  <div class="security-inner">
+
+    <div class="gif-slot" id="top-gif-slot">
+
+      <div class="gif-layer" id="gif-default">
+        <img src="YOUR_DEFAULT_GIF_HERE.gif" alt="gif" />
+      </div>
+
+      <div class="gif-layer gif-wrong" id="gif-wrong">
+        <img src="YOUR_WRONG_PWD_GIF_HERE.gif" alt="nope" />
+      </div>
+
+    </div>
+
+    <h1 class="security-title">Enter <em>Security Clearance</em></h1>
+
+    <div class="terminal-box" id="terminal-box">
+      <div class="terminal-prompt">
+        <span>not</span> everyone gets <span>access</span>
+      </div>
+      <div class="input-row">
+        <span class="cursor-char">›</span>
+        <input type="password" id="pwd-input" placeholder="password..." autocomplete="off" autocorrect="off" spellcheck="false" />
+        <span class="blink-cursor"></span>
+      </div>
+      <button class="enter-btn" id="enter-btn">Continue… →</button>
+      <div class="error-msg" id="error-msg"></div>
+    </div>
+
+  </div>
+</div>
+
+<div id="loading-screen" class="screen" style="min-height:100dvh;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(160deg,var(--bg2) 0%,var(--bg3) 100%);gap:28px;padding:var(--sp);">
+  <div class="loading-hearts">
+    <span>🌸</span><span>💌</span><span>🌸</span>
+  </div>
+  <div class="loading-logo">
+    <em>Friendship.exe</em><br/>
+    <span style="font-family:var(--font-body);font-size:0.85rem;font-style:normal;color:var(--muted);">v2.0.2026 — booting...</span>
+  </div>
+  <div class="loading-msg-box" id="loading-msg">
+    <span class="line" id="load-line">Initializing...</span>
+  </div>
+  <div class="progress-wrap">
+    <div class="progress-bar" id="progress-bar"></div>
+  </div>
+</div>
+
+<div id="interaction-screen" class="screen" style="min-height:100dvh;flex-direction:column;align-items:center;justify-content:center;background:var(--bg);padding:var(--sp);gap:32px;position:relative;overflow:hidden;">
+  <div class="interaction-screen-bg"></div>
+
+  <p class="interaction-q" style="font-size: clamp(2rem, 8vw, 3rem);">
+    pakka dekhna hai?
+  </p>
+  <p style="font-family: var(--font-mono); font-size: 0.9rem; color: var(--pink); text-align: center; position: relative; z-index: 1; margin-top: -16px;">
+    dekh liya… to ignore nahi kr payegi
+  </p>
+
+  <div class="btn-area" id="btn-area">
+    <button class="btn-yes" id="btn-yes">YES 😌</button>
+    <button class="btn-no"  id="btn-no">NO 😶</button>
+  </div>
+
+  <div class="nice-try-msg" id="nice-try-msg">
+    Nice try. Chal ab chup-chap yes kr. 😐
+  </div>
+</div>
+
+<div id="main-content">
+
+  <div id="nav-dots" class="visible">
+    <div class="nav-dot active" data-section="timeline-screen" title="Timeline"></div>
+    <div class="nav-dot" data-section="memory-screen" title="Memories"></div>
+    <div class="nav-dot" data-section="shruti-screen" title="System Analysis"></div>
+    <div class="nav-dot" data-section="protocols-screen" title="Protocols"></div>
+    <div class="nav-dot" data-section="photos-screen" title="Photos"></div>
+    <div class="nav-dot" data-section="vault-screen" title="Vault"></div>
+    <div class="nav-dot" data-section="final-screen" title="Final"></div>
+  </div>
+
+  <section id="timeline-screen">
+    <div class="section-label">// chapter log</div>
+    <h2 class="section-title">The <em>Timeline</em></h2>
+
+    <div class="timeline-wrap">
+      <div class="timeline-line"></div>
+
+      <div class="timeline-card">
+        <div class="timeline-date">JULY 2025</div>
+        <div class="timeline-event">Random NPC encounter 🎮</div>
+        <span class="timeline-tag">(just a normal start… nothing special)</span>
+      </div>
+
+      <div class="timeline-card">
+        <div class="timeline-date">AUGUST 2025</div>
+        <div class="timeline-event">Rakhi DLC unlocked 🎀</div>
+        <span class="timeline-tag">(things got a little more real here)</span>
+      </div>
+
+      <div class="timeline-card">
+        <div class="timeline-date">OCTOBER 2025</div>
+        <div class="timeline-event">Instagram arc begins 📱</div>
+        <span class="timeline-tag">(when random chats became a routine)</span>
+      </div>
+
+      <div class="timeline-card">
+        <div class="timeline-date">MARCH 2026</div>
+        <div class="timeline-event">Gift idea failed 💀</div>
+        <span class="timeline-tag">(2–3 din lage the… tu thi hi nahi)</span>
+      </div>
+
+      <div class="timeline-card">
+        <div class="timeline-date">APRIL 2026</div>
+        <div class="timeline-event">Emotional support mode activated 🫂</div>
+        <span class="timeline-tag">(shayd mai sach me pagla gya tha)</span>
+      </div>
+
+      <div class="timeline-card">
+        <div class="timeline-date">APRIL 2026</div>
+        <div class="timeline-event">Insta deactivated 👁️🗨️</div>
+        <span class="timeline-tag">(thoda sa disconnect ho gaya hai sab)</span>
+      </div>
+    </div>
+  </section>
+
+  <section id="memory-screen">
+    <div class="section-label">// memory_dumps</div>
+    <h2 class="section-title">Random Moments… <em>that somehow stayed</em></h2>
+
+    <div class="memory-grid">
+
+      <div class="mem-card" data-memory="1">
+        <span class="mem-icon">🪔</span>
+        <div class="mem-title">"How it actually started"</div>
+        <div class="mem-tap">tap to reveal</div>
+        <div class="mem-expand">
+          <div class="mem-expand-text">Diwali holidays… school band, Instagram pe baat chalu... honestly… expected hi nahi tha ki itni normal si chat itni memorable ban jayegi.</div>
+          <div class="mem-expand-sarcasm">jyada ho gya na?</div>
+          <div class="mem-close">[ tap to close ]</div>
+        </div>
+      </div>
+      
+      <div class="mem-card" data-memory="2">
+        <span class="mem-icon">🗣️</span>
+        <div class="mem-title">"The gossip connection"</div>
+        <div class="mem-tap">tap to reveal</div>
+        <div class="mem-expand">
+          <div class="mem-expand-text">Half of our chats = class gossip. baaki half = tu mujhe roast karti thi aur main defend bhi nahi karta tha properly. Shayad wahi se comfortable ho gaye the.</div>
+          <div class="mem-expand-sarcasm">waise roasting to aati nhi tujhe.</div>
+          <div class="mem-close">[ tap to close ]</div>
+        </div>
+      </div>
+
+      <div class="mem-card" data-memory="3">
+        <span class="mem-icon">🤝</span>
+        <div class="mem-title">"That “trust” line"</div>
+        <div class="mem-tap">tap to reveal</div>
+        <div class="mem-expand">
+          <div class="mem-expand-text">Mai casually bol gaya tha “i trust you” par tujhe pata hai… mai sab pe trust nahi karta.</div>
+          <div class="mem-expand-sarcasm">// rare drop item unlocked.</div>
+          <div class="mem-close">[ tap to close ]</div>
+        </div>
+      </div>
+
+      <div class="mem-card" data-memory="4">
+        <span class="mem-icon">🎲</span>
+        <div class="mem-title">"Truth & Dare wala phase"</div>
+        <div class="mem-tap">tap to reveal</div>
+        <div class="mem-expand">
+          <div class="mem-expand-text">Random Truth & Dare khelte khelte kab serious baatein aa jaati thi pata hi nahi chalta tha. aur haan… kuch questions unnecessary bhi the 💀</div>
+          <div class="mem-expand-sarcasm">// dangerous game. high stakes.</div>
+          <div class="mem-close">[ tap to close ]</div>
+        </div>
+      </div>
+
+      <div class="mem-card" data-memory="5">
+        <span class="mem-icon">🌙</span>
+        <div class="mem-title">"The normal good nights"</div>
+        <div class="mem-tap">tap to reveal</div>
+        <div class="mem-expand">
+          <div class="mem-expand-text">“Good night, take care” sunne me basic lagta hai… par wahi chats hoti thi jahan baat khatam karne ka mann nahi karta tha.</div>
+          <div class="mem-expand-sarcasm">// typing... deleting... sending anyway.</div>
+          <div class="mem-close">[ tap to close ]</div>
+        </div>
+      </div>
+
+      <div class="mem-card" data-memory="6">
+        <span class="mem-icon">🩹</span>
+        <div class="mem-title">"Lowkey care"</div>
+        <div class="mem-tap">tap to reveal</div>
+        <div class="mem-expand">
+          <div class="mem-expand-text">Tu bolti thi “tension mat le” aur main bolta tha “haan theek hai” par actually… thoda sa tension kam ho jata tha.</div>
+          <div class="mem-expand-sarcasm">// healing spell actually worked.</div>
+          <div class="mem-close">[ tap to close ]</div>
+        </div>
+      </div>
+
+      <div class="mem-card" data-memory="7">
+        <span class="mem-icon">🤐</span>
+        <div class="mem-title">"Almost said everything"</div>
+        <div class="mem-tap">tap to reveal</div>
+        <div class="mem-expand">
+          <div class="mem-expand-text">Us time aisa tha ki sab kuch bol dene ka mann tha par phir socha… tu shi kh rhi h. This isn't love.</div>
+          <div class="mem-expand-sarcasm">Bs maine bohot fake scenarios bna liye the.</div>
+          <div class="mem-close">[ tap to close ]</div>
+        </div>
+      </div>
+
+      <div class="mem-card" data-memory="8">
+        <span class="mem-icon">🎁</span>
+        <div class="mem-title">"The effort you never saw"</div>
+        <div class="mem-tap">tap to reveal</div>
+        <div class="mem-expand">
+          <div class="mem-expand-text">28 March ke liye kuch banaya tha 2–3 din laga ke par tu usse pehle hi bhag gayi. ironic hai… effort tha, moment nahi mila.</div>
+          <div class="mem-expand-sarcasm">(My timing is always bad).</div>
+          <div class="mem-close">[ tap to close ]</div>
+        </div>
+      </div>
+
+      <div class="mem-card" data-memory="9">
+        <span class="mem-icon">👁️‍🗨️</span>
+        <div class="mem-title">"The unsaid understanding"</div>
+        <div class="mem-tap">tap to reveal</div>
+        <div class="mem-expand">
+          <div class="mem-expand-text">Tu kabhi openly serious nahi hoti thi par kabhi kabhi bina bole bhi samajh leti thi.</div>
+          <div class="mem-expand-sarcasm">// telepathy mode active.</div>
+          <div class="mem-close">[ tap to close ]</div>
+        </div>
+      </div>
+
+      <div class="mem-card" data-memory="10">
+        <span class="mem-icon">🧩</span>
+        <div class="mem-title">"What this actually was"</div>
+        <div class="mem-tap">tap to reveal</div>
+        <div class="mem-expand">
+          <div class="mem-expand-text">Na proper best friends na sirf normal classmates. kuch beech ka tha… jo define karna mushkil hai par ignore karna bhi.</div>
+          <div class="mem-expand-sarcasm">// status: complicated but nice.</div>
+          <div class="mem-close">[ tap to close ]</div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <section id="shruti-screen">
+    <div class="section-label">// system_scan --target shruti</div>
+    <h2 class="section-title">Shruti <em>Analysis</em></h2>
+
+    <div class="sys-dashboard">
+      <div class="sys-header">
+        <div class="sys-dots">
+          <span></span><span></span><span></span>
+        </div>
+        <div class="sys-title-bar">shruti.profile — active session</div>
+      </div>
+      <div class="sys-body">
+
+        <div class="sys-row">
+          <div class="sys-key">NAME</div>
+          <div class="sys-val pink">Shruti</div>
+        </div>
+
+        <div class="sys-row">
+          <div class="sys-key">ROLE</div>
+          <div class="sys-val">Bio Topper 🧬</div>
+        </div>
+
+        <div class="sys-row">
+          <div class="sys-key">MENTAL STATUS</div>
+          <div class="sys-val lav">Fully unstable ⚠️</div>
+        </div>
+
+        <div class="sys-row">
+          <div class="sys-key">TRAITS</div>
+          <div class="sys-val">
+            <span class="trait-tag">no drama → all drama</span>
+            <span class="trait-tag">shares gossip silently</span>
+            <span class="trait-tag lav">sarcasm: HIGH</span>
+            <span class="trait-tag">flirt attempt: failed</span>
+            <span class="trait-tag lav">ditch without notice</span>
+          </div>
+        </div>
+
+        <div class="sys-row">
+          <div class="sys-key">FOCUS</div>
+          <div class="sys-val">
+            80%
+            <div class="progress-mini-wrap">
+              <div class="progress-mini" id="focus-bar" style="width:0%"></div>
+            </div>
+            <span style="font-family:var(--font-mono);font-size:0.6rem;color:var(--muted);">drops 40% during gossip sessions</span>
+          </div>
+        </div>
+
+        <div class="sys-row">
+          <div class="sys-key">GOSSIP POLICY</div>
+          <div class="sys-val">
+            <span style="font-family:var(--font-mono);font-size:0.75rem;color:var(--muted);">thinks sharing gossip is stealth mode. it is not.</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <section id="protocols-screen">
+    <div class="section-label">// friendship.config</div>
+    <h2 class="section-title">The <em>Protocols</em></h2>
+
+    <div class="protocols-grid">
+
+      <div class="protocol-item">
+        <div class="protocol-icon">🚫</div>
+        <div class="protocol-body">
+          <div class="protocol-title">Overthinking</div>
+          <div class="protocol-status status-banned">● BANNED — zero tolerance</div>
+        </div>
+        <div class="glow-pulse"></div>
+      </div>
+
+      <div class="protocol-item">
+        <div class="protocol-icon">🔒</div>
+        <div class="protocol-body">
+          <div class="protocol-title">Gossip</div>
+          <div class="protocol-status status-enc">● ENCRYPTED — handle with care</div>
+        </div>
+        <div class="glow-pulse"></div>
+      </div>
+
+      <div class="protocol-item">
+        <div class="protocol-icon">😏</div>
+        <div class="protocol-body">
+          <div class="protocol-title">Teasing</div>
+          <div class="protocol-status status-mandatory">● MANDATORY — no exceptions</div>
+        </div>
+        <div class="glow-pulse"></div>
+      </div>
+
+      <div class="protocol-item">
+        <div class="protocol-icon">🫂</div>
+        <div class="protocol-body">
+          <div class="protocol-title">Emotional Support</div>
+          <div class="protocol-status status-limited">● LIMITED — use wisely</div>
+        </div>
+        <div class="glow-pulse"></div>
+      </div>
+
+      <div class="protocol-item">
+        <div class="protocol-icon">🎭</div>
+        <div class="protocol-body">
+          <div class="protocol-title">Drama</div>
+          <div class="protocol-status status-banned">● OFFICIALLY BANNED (unofficially: daily)</div>
+        </div>
+        <div class="glow-pulse"></div>
+      </div>
+
+      <div class="protocol-item">
+        <div class="protocol-icon">💬</div>
+        <div class="protocol-body">
+          <div class="protocol-title">Late Replies</div>
+          <div class="protocol-status status-enc">● ACCEPTED — with sarcasm</div>
+        </div>
+        <div class="glow-pulse"></div>
+      </div>
+
+    </div>
+  </section>
+
+  <section id="photos-screen">
+    <div class="section-label">// photos.tar.gz</div>
+    <h2 class="section-title">Memory <em>Shots</em></h2>
+
+    <div class="photos-grid" id="photos-grid">
+      </div>
+  </section>
+
+  <section id="vault-screen">
+    <div class="section-label">// vault.exe</div>
+    <h2 class="section-title">Secret <em>Vault</em></h2>
+
+    <div class="vault-btn-wrap">
+      <button class="vault-trigger" id="vault-trigger">⚠️ Do not open</button>
+    </div>
+
+    <div class="vault-reveal" id="vault-reveal">
+      <div class="vault-reveal-text">
+        "Thanks for making this place<br/>less <em>boring.</em>"
+      </div>
+      <div class="vault-reveal-sub">// message delivered. no drama. clean exit.</div>
+    </div>
+  </section>
+
+  <section id="final-screen">
+    <div class="final-status-label">// friendship_status.log</div>
+    <div>
+      <div class="final-status-val">
+        Friendship status:<br/><em>Still running.</em>
+      </div>
+    </div>
+    <div class="final-pill">
+      <span class="online-dot"></span>
+      uptime: since july 2025 — no crashes
+    </div>
+    <a href="https://t.me/atulyapratap" target="_blank" rel="noopener" class="tg-btn">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.562 8.248-1.97 9.286c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12l-6.871 4.326-2.962-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.131.833.935z"/></svg>
+      Open Telegram
+    </a>
+    <div class="final-footer">built with effort. not desperation. — atulya 🌸</div>
+  </section>
+
+</div><audio id="lofi-audio" loop>
+  <source src="YOUR_AUDIO_FILE_HERE.mp3" type="audio/mpeg" />
+</audio>
+
+<script>
+/* ============================
+   STATE
+   ============================ */
+let noAttempts   = 0;
+let audioPlaying = false;
+const MAX_NO     = 3;
+
+/* ============================
+   UTILITY
+   ============================ */
+function $(id) { return document.getElementById(id); }
+
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+function confetti() {
+  const wrap   = $('confetti-wrap');
+  const colors = ['#ff4d6d','#ffb3c1','#c9b8f5','#ffd6e0','#ff6b9d','#a855f7'];
+  for (let i = 0; i < 36; i++) {
+    const p = document.createElement('div');
+    p.className = 'confetti-piece';
+    p.style.cssText = `
+      left:${Math.random()*100}%;
+      top:-10px;
+      background:${colors[i % colors.length]};
+      animation-delay:${Math.random()*0.8}s;
+      animation-duration:${1.2 + Math.random()*0.8}s;
+      border-radius:${Math.random()>0.5?'50%':'2px'};
+    `;
+    wrap.appendChild(p);
+    setTimeout(() => p.remove(), 2200);
+  }
+}
+
+/* ============================
+   1. SECURITY SCREEN LOGIC
+   ============================ */
+const pwdInput  = $('pwd-input');
+const enterBtn  = $('enter-btn');
+const errorMsg  = $('error-msg');
+const termBox   = $('terminal-box');
+const gifWrong  = $('gif-wrong');
+const secScreen = $('security-screen');
+
+let wrongGifTimer = null;
+
+function showWrongGif() {
+  gifWrong.classList.add('show');
+  clearTimeout(wrongGifTimer);
+  wrongGifTimer = setTimeout(() => {
+    gifWrong.classList.remove('show');
+  }, 2000);
+}
+
+function tryPassword() {
+  const val = pwdInput.value.trim();
+  if (val === 's') {
+    // Correct — clear any wrong gif, show success
+    gifWrong.classList.remove('show');
+    clearTimeout(wrongGifTimer);
+    errorMsg.textContent = '✓ Access granted. Welcome.';
+    errorMsg.style.color = '#22c55e';
+    pwdInput.disabled = true;
+    enterBtn.disabled  = true;
+    setTimeout(() => {
+      secScreen.classList.add('exit');
+      setTimeout(() => {
+        secScreen.style.display = 'none';
+        $('audio-btn').classList.add('visible');
+        startLoading();
+      }, 600);
+    }, 600);
+  } else {
+    // Wrong — shake, show wrong gif for 2s then revert
+    termBox.classList.add('shake');
+    termBox.addEventListener('animationend', () => termBox.classList.remove('shake'), { once: true });
+    errorMsg.textContent = 'nah… that’s not it';
+    errorMsg.style.color = 'var(--pink)';
+    showWrongGif();
+    pwdInput.value = '';
+    pwdInput.focus();
+  }
+}
+
+enterBtn.addEventListener('click', tryPassword);
+pwdInput.addEventListener('keydown', e => { if (e.key === 'Enter') tryPassword(); });
+pwdInput.focus();
+
+/* ============================
+   2. LOADING SCREEN LOGIC
+   ============================ */
+const loadMessages = [
+  
+  'it didn’t feel important then…',
+  'but it stayed somehow',
+  'you’ll see why',
+  'Almost there… 🌸'
+];
+
+async function startLoading() {
+  const loadScreen = $('loading-screen');
+  const bar        = $('progress-bar');
+  const line       = $('load-line');
+
+  loadScreen.classList.add('active');
+
+  for (let i = 0; i < loadMessages.length; i++) {
+    line.style.animation = 'none';
+    line.textContent = loadMessages[i];
+    void line.offsetWidth; // reflow
+    line.style.animation = '';
+
+    const pct = Math.round(((i + 1) / loadMessages.length) * 100);
+    bar.style.width = pct + '%';
+
+    await sleep(i === loadMessages.length - 1 ? 400 : 550);
+  }
+
+  await sleep(300);
+
+  loadScreen.style.transition = 'opacity 0.5s ease';
+  loadScreen.style.opacity = '0';
+  await sleep(500);
+  loadScreen.classList.remove('active');
+  loadScreen.style.opacity = '';
+
+  // Show interaction screen
+  $('interaction-screen').classList.add('active');
+}
+
+/* ============================
+   3. INTERACTION SCREEN LOGIC
+   ============================ */
+const btnYes      = $('btn-yes');
+const btnNo       = $('btn-no');
+const niceTry     = $('nice-try-msg');
+const btnArea     = $('btn-area');
+
+// Position NO button randomly (mobile-safe)
+function runAway() {
+  noAttempts++;
+  if (noAttempts >= MAX_NO) {
+    btnNo.style.display = 'none';
+    niceTry.classList.add('show');
+    return;
+  }
+
+  const areaRect = document.getElementById('interaction-screen').getBoundingClientRect();
+  const bw = btnNo.offsetWidth  || 100;
+  const bh = btnNo.offsetHeight || 48;
+
+  const maxX = (areaRect.width  - bw  - 24);
+  const maxY = (areaRect.height - bh  - 80);
+
+  const rx = Math.max(12, Math.random() * maxX);
+  const ry = Math.max(60, Math.random() * maxY);
+
+  btnNo.style.position  = 'absolute';
+  btnNo.style.left      = rx + 'px';
+  btnNo.style.top       = ry + 'px';
+  btnNo.style.right     = 'auto';
+  btnNo.style.bottom    = 'auto';
+}
+
+btnNo.addEventListener('click',  runAway);
+btnNo.addEventListener('touchstart', runAway, { passive: true });
+
+btnYes.addEventListener('click', () => {
+  confetti();
+  const iScreen = $('interaction-screen');
+  iScreen.style.transition = 'opacity 0.5s ease';
+  iScreen.style.opacity    = '0';
+  setTimeout(() => {
+    iScreen.classList.remove('active');
+    iScreen.style.opacity = '';
+    // Show main content
+    const mc = $('main-content');
+    mc.classList.add('active');
+    initScrollAnimations();
+    initPhotos();
+    updateNavDots();
+  }, 500);
+});
+
+/* ============================
+   SCROLL ANIMATIONS
+   ============================ */
+function initScrollAnimations() {
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        // Focus bar special case
+        if (entry.target.querySelector && entry.target.querySelector('#focus-bar')) {
+          setTimeout(() => { $('focus-bar').style.width = '80%'; }, 300);
+        }
+      }
+    });
+  }, { threshold: 0.12 });
+
+  document.querySelectorAll(
+    '.timeline-card, .mem-card, .sys-row, .protocol-item, .photo-item'
+  ).forEach(el => observer.observe(el));
+}
+
+/* ============================
+   PHOTO GALLERY
+   ============================ */
+const PHOTOS = [
+  // Local relative placeholders configured here
+  { src: 'YOUR_PHOTO_1_HERE.jpg', caption: ' photo 1' },
+  { src: 'YOUR_PHOTO_2_HERE.jpg', caption: ' photo 2' },
+  { src: 'YOUR_PHOTO_3_HERE.jpg', caption: ' photo 3' },
+  { src: 'YOUR_PHOTO_4_HERE.jpg', caption: ' photo 4' },
+  { src: 'YOUR_PHOTO_5_HERE.jpg', caption: 'You look exactly like this' },
+  { src: 'YOUR_PHOTO_6_HERE.jpg', caption: 'Pesonality like this' },
+];
+
+const PLACEHOLDER = 'data:image/svg+xml,' + encodeURIComponent(
+  '<svg xmlns="http://www.w3.org/2000/svg" width="300" height="300">' +
+  '<rect fill="#ffe0e8" width="300" height="300" rx="16"/>' +
+  '<text font-size="60" x="150" y="155" text-anchor="middle" dominant-baseline="middle">📸</text>' +
+  '</svg>'
+);
+
+function initPhotos() {
+  const grid = $('photos-grid');
+  grid.innerHTML = '';
+  PHOTOS.forEach((photo) => {
+    const item = document.createElement('div');
+    item.className = 'photo-item';
+    const imgSrc = photo.src || PLACEHOLDER;
+    item.innerHTML = `
+      <img src="${imgSrc}" alt="${photo.caption}" loading="lazy"
+        onerror="this.src='${PLACEHOLDER}'">
+      <div class="photo-overlay">
+        <span class="photo-caption">${photo.caption}</span>
+      </div>
+    `;
+    item.addEventListener('click', () => openLightbox(imgSrc));
+    grid.appendChild(item);
+  });
+
+  // Observe newly created photo items
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+  }, { threshold: 0.1 });
+  grid.querySelectorAll('.photo-item').forEach(el => observer.observe(el));
+}
+
+function openLightbox(src) {
+  $('lb-img').src = src;
+  $('lightbox').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeLightbox(e) {
+  if (!e || e.target !== $('lb-img')) {
+    $('lightbox').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeLightbox();
+});
+
+/* ============================
+   NAV DOTS
+   ============================ */
+const sections = [
+  'timeline-screen','memory-screen','shruti-screen',
+  'protocols-screen','photos-screen','vault-screen','final-screen'
+];
+
+function updateNavDots() {
+  const dots = document.querySelectorAll('.nav-dot');
+  const scrollY = window.scrollY + window.innerHeight / 2;
+
+  sections.forEach((id, i) => {
+    const el = $(id);
+    if (!el) return;
+    const top    = el.offsetTop;
+    const bottom = top + el.offsetHeight;
+    if (scrollY >= top && scrollY < bottom) {
+      dots.forEach(d => d.classList.remove('active'));
+      dots[i] && dots[i].classList.add('active');
+    }
+  });
+}
+
+window.addEventListener('scroll', updateNavDots);
+
+document.querySelectorAll('.nav-dot').forEach(dot => {
+  dot.addEventListener('click', () => {
+    const id = dot.dataset.section;
+    $(id) && $(id).scrollIntoView({ behavior: 'smooth' });
+  });
+});
+
+/* ============================
+   MEMORY CARDS
+   ============================ */
+document.querySelectorAll('.mem-card').forEach(card => {
+  card.addEventListener('click', () => {
+    const isExpanded = card.classList.contains('expanded');
+    document.querySelectorAll('.mem-card').forEach(c => c.classList.remove('expanded'));
+    if (!isExpanded) card.classList.add('expanded');
+  });
+});
+
+/* ============================
+   SECRET VAULT
+   ============================ */
+$('vault-trigger').addEventListener('click', () => {
+  const reveal = $('vault-reveal');
+  reveal.classList.toggle('open');
+  $('vault-trigger').textContent = reveal.classList.contains('open')
+    ? '🔒 Vault sealed' : '⚠️ Do not open';
+});
+
+/* ============================
+   AUDIO BUTTON
+   ============================ */
+const audio   = $('lofi-audio');
+const audioBtn = $('audio-btn');
+
+audioBtn.addEventListener('click', () => {
+  if (audioPlaying) {
+    audio.pause();
+    audioPlaying = false;
+    audioBtn.classList.remove('playing');
+    audioBtn.querySelector('.note').textContent = '🎵';
+  } else {
+    audio.play().catch(() => {});
+    audioPlaying = true;
+    audioBtn.classList.add('playing');
+    audioBtn.querySelector('.note').textContent = '🎶';
+  }
+});
+
+/* ============================
+   VIEWPORT HEIGHT FIX (iOS)
+   ============================ */
+function setVH() {
+  document.documentElement.style.setProperty('--vh', window.innerHeight * 0.01 + 'px');
+}
+setVH();
+window.addEventListener('resize', setVH);
+</script>
+</body>
+</html>
