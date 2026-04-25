@@ -556,6 +556,12 @@ body {
   transition: transform 0.3s, box-shadow 0.3s;
   opacity: 0;
   transform: translateY(22px);
+  min-height: 220px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
 }
 .mem-card.visible { opacity: 1; transform: translateY(0); }
 .mem-card:hover, .mem-card:active { transform: translateY(-4px) scale(1.01); box-shadow: var(--shadow); }
@@ -589,11 +595,14 @@ body {
   display: flex;
   flex-direction: column;
   justify-content: center;
+  align-items: center;
+  text-align: center;
   gap: 10px;
   opacity: 0;
   transform: scale(0.9);
   transition: opacity 0.3s, transform 0.3s;
   pointer-events: none;
+  overflow-y: auto;
 }
 .mem-card.expanded .mem-expand {
   opacity: 1;
@@ -1253,7 +1262,7 @@ body {
 
       <div class="timeline-card">
         <div class="timeline-date">AUGUST 2025</div>
-        <div class="timeline-event">Rakhi DLC unlocked 🎀</div>
+        <div class="timeline-event">Rakhi Moment 🎀</div>
         <span class="timeline-tag">(things got a little more real here)</span>
       </div>
 
@@ -1266,7 +1275,7 @@ body {
       <div class="timeline-card">
         <div class="timeline-date">MARCH 2026</div>
         <div class="timeline-event">Gift idea failed 💀</div>
-        <span class="timeline-tag">(2–3 din lage the… tu thi hi nahi)</span>
+        <span class="timeline-tag">(2–3 din lage the… sb wasted.)</span>
       </div>
 
       <div class="timeline-card">
@@ -1338,7 +1347,7 @@ body {
         <div class="mem-title">"The normal good nights"</div>
         <div class="mem-tap">tap to reveal</div>
         <div class="mem-expand">
-          <div class="mem-expand-text">“Good night, take care” sunne me basic lagta hai… par wahi chats hoti thi jahan baat khatam karne ka mann nahi karta tha.</div>
+          <div class="mem-expand-text">“Good night, take care” itna to normal hota hai na…… par kuch chats khatam karne ka mann nahi karta.</div>
           <div class="mem-expand-sarcasm">// typing... deleting... sending anyway.</div>
           <div class="mem-close">[ tap to close ]</div>
         </div>
@@ -1361,7 +1370,7 @@ body {
         <div class="mem-tap">tap to reveal</div>
         <div class="mem-expand">
           <div class="mem-expand-text">Us time aisa tha ki sab kuch bol dene ka mann tha par phir socha… tu shi kh rhi h. This isn't love.</div>
-          <div class="mem-expand-sarcasm">Bs maine bohot fake scenarios bna liye the.</div>
+          <div class="mem-expand-sarcasm">Pta nhi kya shi h kya nhi...</div>
           <div class="mem-close">[ tap to close ]</div>
         </div>
       </div>
@@ -1433,9 +1442,10 @@ body {
         <div class="sys-row">
           <div class="sys-key">TRAITS</div>
           <div class="sys-val">
-            <span class="trait-tag">no drama → all drama</span>
+            <span class="trait-tag">no drama… but somehow drama mil hi jata hai</span>
             <span class="trait-tag">shares gossip silently</span>
             <span class="trait-tag lav">sarcasm: HIGH</span>
+            <span class="trait-tag lav">overthinking: hidden mode</span>
             <span class="trait-tag">flirt attempt: failed</span>
             <span class="trait-tag lav">ditch without notice</span>
           </div>
@@ -1448,7 +1458,7 @@ body {
             <div class="progress-mini-wrap">
               <div class="progress-mini" id="focus-bar" style="width:0%"></div>
             </div>
-            <span style="font-family:var(--font-mono);font-size:0.6rem;color:var(--muted);">drops 40% during gossip sessions</span>
+            <span style="font-family:var(--font-mono);font-size:0.6rem;color:var(--muted);">drops thoda during “important discussions” 👀</span>
           </div>
         </div>
 
@@ -1482,7 +1492,7 @@ body {
         <div class="protocol-icon">🔒</div>
         <div class="protocol-body">
           <div class="protocol-title">Gossip</div>
-          <div class="protocol-status status-enc">● ENCRYPTED — handle with care</div>
+          <div class="protocol-status status-enc">● All gossip is end-to-end encrypted. (We hope.)</div>
         </div>
         <div class="glow-pulse"></div>
       </div>
@@ -1565,7 +1575,7 @@ body {
       <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.562 8.248-1.97 9.286c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12l-6.871 4.326-2.962-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.131.833.935z"/></svg>
       Open Telegram
     </a>
-    <div class="final-footer">built with effort. not desperation. — atulya 🌸</div>
+    <div class="final-footer">Just flexing some skills... — atulya 🌸</div>
   </section>
 
 </div><audio id="lofi-audio" loop>
@@ -1648,7 +1658,7 @@ function tryPassword() {
     // Wrong — shake, show wrong gif for 2s then revert
     termBox.classList.add('shake');
     termBox.addEventListener('animationend', () => termBox.classList.remove('shake'), { once: true });
-    errorMsg.textContent = 'nah… that’s not it';
+    errorMsg.textContent = 'mane thappad marna h👋!!';
     errorMsg.style.color = 'var(--pink)';
     showWrongGif();
     pwdInput.value = '';
@@ -1741,6 +1751,15 @@ btnNo.addEventListener('touchstart', runAway, { passive: true });
 
 btnYes.addEventListener('click', () => {
   confetti();
+  
+  // AUTOPLAY AUDIO HERE
+  const audio = $('lofi-audio');
+  const audioBtn = $('audio-btn');
+  audio.play().catch(err => console.log("Audio block by browser:", err));
+  audioPlaying = true;
+  audioBtn.classList.add('playing');
+  audioBtn.querySelector('.note').textContent = '🎶';
+
   const iScreen = $('interaction-screen');
   iScreen.style.transition = 'opacity 0.5s ease';
   iScreen.style.opacity    = '0';
