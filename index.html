@@ -111,7 +111,6 @@ body {
   gap: 20px;
 }
 
-/* GIF slot */
 .gif-slot {
   width: min(220px, 80vw);
   height: min(160px, 44vw);
@@ -129,14 +128,6 @@ body {
   position: relative;
 }
 .gif-slot img { width: 100%; height: 100%; object-fit: cover; border-radius: var(--radius); }
-.gif-slot-label {
-  position: absolute;
-  bottom: 6px;
-  font-size: 0.6rem;
-  color: var(--pink);
-  opacity: 0.6;
-  font-family: var(--font-mono);
-}
 
 .security-title {
   font-family: var(--font-head);
@@ -229,7 +220,6 @@ body {
   animation: fadeIn 0.3s ease;
 }
 
-/* Layered gifs inside the shared slot */
 .gif-layer {
   position: absolute;
   inset: 0;
@@ -251,6 +241,11 @@ body {
 .gif-wrong.show {
   opacity: 1;
   pointer-events: auto;
+}
+
+.gif-layer.hide {
+  opacity: 0;
+  pointer-events: none;
 }
 
 @keyframes shake {
@@ -404,7 +399,6 @@ body {
   color: var(--muted);
   border: 1.5px solid var(--border);
   box-shadow: var(--shadow2);
-  position: absolute;
   transition: top 0.35s cubic-bezier(.34,1.56,.64,1), left 0.35s cubic-bezier(.34,1.56,.64,1), transform 0.2s;
 }
 
@@ -892,7 +886,7 @@ body {
   line-height: 1.3;
 }
 
-/* Lightbox */
+/* Lightbox & Captions */
 .lightbox {
   display: none;
   position: fixed;
@@ -926,6 +920,23 @@ body {
   z-index: 1;
 }
 .lb-close:hover { transform: scale(1.2); }
+
+.lb-caption {
+  position: absolute;
+  bottom: 8%;
+  left: 50%;
+  transform: translateX(-50%);
+  color: rgba(255, 255, 255, 0.9);
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  text-align: center;
+  background: rgba(0, 0, 0, 0.6);
+  padding: 6px 14px;
+  border-radius: 20px;
+  pointer-events: none;
+  display: none;
+  z-index: 2;
+}
 
 /* ============================
    9. SECRET VAULT
@@ -995,10 +1006,6 @@ body {
   color: var(--muted);
   letter-spacing: 0.07em;
 }
-
-/* ============================
-   9. (Audio button is floating, defined above)
-   ============================ */
 
 /* ============================
    10. FINAL SCREEN
@@ -1160,6 +1167,7 @@ body {
 <div class="lightbox" id="lightbox" onclick="closeLightbox(event)">
   <span class="lb-close" onclick="closeLightbox()">✕</span>
   <img id="lb-img" src="" alt="">
+  <div id="lb-caption" class="lb-caption"></div>
 </div>
 
 <button id="audio-btn" title="Toggle Lo-Fi music" aria-label="Toggle music">
@@ -1420,7 +1428,7 @@ body {
         <div class="sys-dots">
           <span></span><span></span><span></span>
         </div>
-        <div class="sys-title-bar">shruti.profile — active session</div>
+        <div class="sys-title-bar">shruti🌷 —profile</div>
       </div>
       <div class="sys-body">
 
@@ -1445,7 +1453,7 @@ body {
             <span class="trait-tag">no drama… but somehow drama mil hi jata hai</span>
             <span class="trait-tag">shares gossip silently</span>
             <span class="trait-tag lav">sarcasm: HIGH</span>
-            <span class="trait-tag lav">overthinking: hidden mode</span>
+            <span class="trait-tag lav">part-time overthinker</span>
             <span class="trait-tag">flirt attempt: failed</span>
             <span class="trait-tag lav">ditch without notice</span>
           </div>
@@ -1556,7 +1564,7 @@ body {
       <div class="vault-reveal-text">
         "Thanks for making this place<br/>less <em>boring.</em>"
       </div>
-      <div class="vault-reveal-sub">// message delivered. no drama. clean exit.</div>
+      <div class="vault-reveal-sub">Sach bolu…tere bina yeh sab itna interesting nahi hota..</div>
     </div>
   </section>
 
@@ -1619,29 +1627,34 @@ function confetti() {
 /* ============================
    1. SECURITY SCREEN LOGIC
    ============================ */
-const pwdInput  = $('pwd-input');
-const enterBtn  = $('enter-btn');
-const errorMsg  = $('error-msg');
-const termBox   = $('terminal-box');
-const gifWrong  = $('gif-wrong');
-const secScreen = $('security-screen');
+const pwdInput   = $('pwd-input');
+const enterBtn   = $('enter-btn');
+const errorMsg   = $('error-msg');
+const termBox    = $('terminal-box');
+const gifWrong   = $('gif-wrong');
+const gifDefault = $('gif-default');
+const secScreen  = $('security-screen');
 
 let wrongGifTimer = null;
 
 function showWrongGif() {
   gifWrong.classList.add('show');
+  gifDefault.classList.add('hide'); // Hide the first gif
+  
   clearTimeout(wrongGifTimer);
   wrongGifTimer = setTimeout(() => {
     gifWrong.classList.remove('show');
-  }, 2000);
+    gifDefault.classList.remove('hide'); // Bring the first gif back
+  }, 3000); // Changed to 3 seconds
 }
 
 function tryPassword() {
   const val = pwdInput.value.trim();
-  if (val === 's') {
-    // Correct — clear any wrong gif, show success
+  if (val === 'spill_da_tea') {
     gifWrong.classList.remove('show');
+    gifDefault.classList.remove('hide'); // Ensure default is visible on success
     clearTimeout(wrongGifTimer);
+    
     errorMsg.textContent = '✓ Access granted. Welcome.';
     errorMsg.style.color = '#22c55e';
     pwdInput.disabled = true;
@@ -1655,7 +1668,6 @@ function tryPassword() {
       }, 600);
     }, 600);
   } else {
-    // Wrong — shake, show wrong gif for 2s then revert
     termBox.classList.add('shake');
     termBox.addEventListener('animationend', () => termBox.classList.remove('shake'), { once: true });
     errorMsg.textContent = 'mane thappad marna h👋!!';
@@ -1674,7 +1686,6 @@ pwdInput.focus();
    2. LOADING SCREEN LOGIC
    ============================ */
 const loadMessages = [
-  
   'it didn’t feel important then…',
   'but it stayed somehow',
   'you’ll see why',
@@ -1691,7 +1702,7 @@ async function startLoading() {
   for (let i = 0; i < loadMessages.length; i++) {
     line.style.animation = 'none';
     line.textContent = loadMessages[i];
-    void line.offsetWidth; // reflow
+    void line.offsetWidth;
     line.style.animation = '';
 
     const pct = Math.round(((i + 1) / loadMessages.length) * 100);
@@ -1708,7 +1719,6 @@ async function startLoading() {
   loadScreen.classList.remove('active');
   loadScreen.style.opacity = '';
 
-  // Show interaction screen
   $('interaction-screen').classList.add('active');
 }
 
@@ -1720,8 +1730,9 @@ const btnNo       = $('btn-no');
 const niceTry     = $('nice-try-msg');
 const btnArea     = $('btn-area');
 
-// Position NO button randomly (mobile-safe)
-function runAway() {
+function runAway(e) {
+  if (e && e.cancelable) e.preventDefault(); 
+  
   noAttempts++;
   if (noAttempts >= MAX_NO) {
     btnNo.style.display = 'none';
@@ -1729,30 +1740,30 @@ function runAway() {
     return;
   }
 
-  const areaRect = document.getElementById('interaction-screen').getBoundingClientRect();
-  const bw = btnNo.offsetWidth  || 100;
+  const bw = btnNo.offsetWidth || 100;
   const bh = btnNo.offsetHeight || 48;
+  
+  const padding = 20; 
+  const maxX = window.innerWidth - bw - padding;
+  const maxY = window.innerHeight - bh - padding;
 
-  const maxX = (areaRect.width  - bw  - 24);
-  const maxY = (areaRect.height - bh  - 80);
+  const rx = Math.max(padding, Math.random() * maxX);
+  const ry = Math.max(padding, Math.random() * maxY);
 
-  const rx = Math.max(12, Math.random() * maxX);
-  const ry = Math.max(60, Math.random() * maxY);
-
-  btnNo.style.position  = 'absolute';
+  btnNo.style.position  = 'fixed';
   btnNo.style.left      = rx + 'px';
   btnNo.style.top       = ry + 'px';
   btnNo.style.right     = 'auto';
   btnNo.style.bottom    = 'auto';
+  btnNo.style.zIndex    = '9999';
 }
 
 btnNo.addEventListener('click',  runAway);
-btnNo.addEventListener('touchstart', runAway, { passive: true });
+btnNo.addEventListener('touchstart', runAway, { passive: false });
 
 btnYes.addEventListener('click', () => {
   confetti();
   
-  // AUTOPLAY AUDIO HERE
   const audio = $('lofi-audio');
   const audioBtn = $('audio-btn');
   audio.play().catch(err => console.log("Audio block by browser:", err));
@@ -1766,7 +1777,6 @@ btnYes.addEventListener('click', () => {
   setTimeout(() => {
     iScreen.classList.remove('active');
     iScreen.style.opacity = '';
-    // Show main content
     const mc = $('main-content');
     mc.classList.add('active');
     initScrollAnimations();
@@ -1783,7 +1793,6 @@ function initScrollAnimations() {
     entries.forEach(entry => {
       if (entry.isIntersecting) {
         entry.target.classList.add('visible');
-        // Focus bar special case
         if (entry.target.querySelector && entry.target.querySelector('#focus-bar')) {
           setTimeout(() => { $('focus-bar').style.width = '80%'; }, 300);
         }
@@ -1800,13 +1809,12 @@ function initScrollAnimations() {
    PHOTO GALLERY
    ============================ */
 const PHOTOS = [
-  // Local relative placeholders configured here
-  { src: 'YOUR_PHOTO_1_HERE.jpg', caption: ' photo 1' },
-  { src: 'YOUR_PHOTO_2_HERE.jpg', caption: ' photo 2' },
-  { src: 'YOUR_PHOTO_3_HERE.jpg', caption: ' photo 3' },
-  { src: 'YOUR_PHOTO_4_HERE.jpg', caption: ' photo 4' },
+  { src: 'YOUR_PHOTO_1_HERE.jpg', caption: '🍀' },
+  { src: 'YOUR_PHOTO_2_HERE.jpg', caption: '🌻' },
+  { src: 'YOUR_PHOTO_3_HERE.jpg', caption: '🌸' },
+  { src: 'YOUR_PHOTO_4_HERE.jpg', caption: '🌺💮' },
   { src: 'YOUR_PHOTO_5_HERE.jpg', caption: 'You look exactly like this' },
-  { src: 'YOUR_PHOTO_6_HERE.jpg', caption: 'Pesonality like this' },
+  { src: 'YOUR_PHOTO_6_HERE.jpg', caption: 'and personality like this' },
 ];
 
 const PLACEHOLDER = 'data:image/svg+xml,' + encodeURIComponent(
@@ -1830,19 +1838,27 @@ function initPhotos() {
         <span class="photo-caption">${photo.caption}</span>
       </div>
     `;
-    item.addEventListener('click', () => openLightbox(imgSrc));
+    item.addEventListener('click', () => openLightbox(imgSrc, photo.caption));
     grid.appendChild(item);
   });
 
-  // Observe newly created photo items
   const observer = new IntersectionObserver((entries) => {
     entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
   }, { threshold: 0.1 });
   grid.querySelectorAll('.photo-item').forEach(el => observer.observe(el));
 }
 
-function openLightbox(src) {
+function openLightbox(src, caption) {
   $('lb-img').src = src;
+  
+  const capEl = $('lb-caption');
+  if (caption) {
+    capEl.textContent = caption;
+    capEl.style.display = 'block';
+  } else {
+    capEl.style.display = 'none';
+  }
+  
   $('lightbox').classList.add('open');
   document.body.style.overflow = 'hidden';
 }
